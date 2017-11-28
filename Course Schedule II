@@ -1,0 +1,55 @@
+// _________________My DFS________________________
+class Solution {
+    private int[] color;
+    private int[] flag;
+    private boolean exist;
+    
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        int n = numCourses;
+        color = new int[n];
+        flag = new int[n];
+        exist = true;
+        
+        // transform to adj list
+        List<List<Integer>> adj = new ArrayList<>();
+        for(int i = 0; i < n; i++) adj.add(new ArrayList<>());
+        for(int[] pair: prerequisites){
+            adj.get(pair[0]).add(pair[1]);
+        }
+        List<Integer> sche = new ArrayList<>();
+        
+        // dfs
+        for(int i = 0; i < n; i++){
+            if(flag[i] == 0){
+                dfs(i, adj, n, sche);
+            if(!exist)  return new int[0];
+            }
+        }
+        
+        // list to array
+        int[] re = new int[n];
+        for(int i = 0; i < sche.size(); i++)    re[i] = sche.get(i);
+        return re;
+    }
+    
+    public void dfs(int i, List<List<Integer>> adj, int n, List<Integer> sche){
+        flag[i] = 1;
+        color[i] = 1;
+        
+        // adjacent nodes
+        List<Integer> list = adj.get(i);
+        for(int j: list){
+            // unvisited
+            if(flag[j] == 0){
+                dfs(j, adj, n, sche);
+            }
+            // cyclic: empty list
+            if(color[j] == 1){
+                exist = false;
+                return;
+            }
+        }
+        color[i] = 2;
+        sche.add(i);
+    }
+}
