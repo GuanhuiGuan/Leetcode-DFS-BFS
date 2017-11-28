@@ -1,4 +1,4 @@
-// _________________My DFS________________________
+// _________________DFS________________________
 class Solution {
     private int[] color;
     private int[] flag;
@@ -11,6 +11,7 @@ class Solution {
         exist = true;
         
         // transform to adj list
+        // every list consists of one's prerequisites
         List<List<Integer>> adj = new ArrayList<>();
         for(int i = 0; i < n; i++) adj.add(new ArrayList<>());
         for(int[] pair: prerequisites){
@@ -51,5 +52,54 @@ class Solution {
         }
         color[i] = 2;
         sche.add(i);
+    }
+}
+
+
+//__________________________BFS___________________________
+//adj list: each list contains one's successors
+//when one has no successor, it could be added to the schedule
+class Solution {
+    private int[] flag;
+    // num of prerequisites
+    private int[] pre;
+    
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        int n = numCourses;
+        flag = new int[n];
+        pre = new int[n];
+        int[] sche = new int[n];
+        
+        // form adj list
+        // from prerequisite to present; reversed against the one of DFS
+        List<List<Integer>> adj = new ArrayList<>();
+        for(int i = 0; i < n; i++)  adj.add(new ArrayList<>());
+        for(int[] pair: prerequisites){
+            adj.get(pair[1]).add(pair[0]);
+            pre[pair[0]]++;
+        }
+        
+        Queue<Integer> queue = new ArrayDeque<>();
+        
+        for(int i = 0; i < n; i++){
+            if(pre[i] == 0) queue.offer(i);
+        }
+        
+        // if cyclic, the cycle cannot be added to the queue
+        // because the entrance of cycle will have 1 pre(if pure cycle) or at least 2 pre(if extra edges connected)
+        // thus cannot be added to queue, and count would be smaller than n
+        int count = 0;
+        while(!queue.isEmpty()){
+            int node = queue.poll();
+            sche[count] = node;
+            count++;
+            List<Integer> list = adj.get(node);
+            for(int next: list){
+                pre[next]--;
+                if(pre[next] == 0)  queue.offer(next);
+            }
+        }
+        
+        return count == n ? sche : new int[0];
     }
 }
